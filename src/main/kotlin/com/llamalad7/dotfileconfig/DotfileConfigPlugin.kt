@@ -8,6 +8,7 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.psi.codeStyle.CodeStyleSchemes
 
 object DotfileConfigPlugin {
     private val mapper = JsonMapper.builder()
@@ -15,6 +16,7 @@ object DotfileConfigPlugin {
         .build()
         .registerKotlinModule()
     private val homeDir = VfsUtil.getUserHomeDir() ?: error("Could not locate user home directory!")
+    private val defaultCodeStyleSettings get() = CodeStyleSchemes.getInstance().defaultScheme.codeStyleSettings
     private val activeKeymap get() = KeymapManager.getInstance().activeKeymap
     val configFile get() = homeDir.findOrCreateChildData(this, ".ideaconfig")
 
@@ -35,6 +37,7 @@ object DotfileConfigPlugin {
         try {
             val config = mapper.readValue<DotfileConfig>(text)
             config.apply(
+                codeStyleSettings = defaultCodeStyleSettings,
                 keymap = activeKeymap,
             )
         } catch (e: Exception) {
@@ -44,6 +47,7 @@ object DotfileConfigPlugin {
 
     private fun writeConfig(): String {
         val config = DotfileConfig(
+            codeStyle = CodeStyleConfig(defaultCodeStyleSettings),
             keybinds = KeybindConfig(activeKeymap),
         )
         return mapper.writeValueAsString(config)

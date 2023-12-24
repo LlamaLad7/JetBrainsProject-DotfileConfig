@@ -4,14 +4,26 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.intellij.openapi.actionSystem.KeyboardShortcut
 import com.intellij.openapi.keymap.Keymap
+import com.intellij.psi.codeStyle.CodeStyleSettings
 
 data class DotfileConfig(
+    val codeStyle: CodeStyleConfig,
     val keybinds: KeybindConfig,
 ) {
     fun apply(
+        codeStyleSettings: CodeStyleSettings,
         keymap: Keymap,
     ) {
+        codeStyle.apply(codeStyleSettings)
         keybinds.apply(keymap)
+    }
+}
+
+data class CodeStyleConfig(val settings: Map<String, Map<String, Any>>) {
+    constructor(codeStyleSettings: CodeStyleSettings) : this(getCurrentCodeStyle(codeStyleSettings))
+
+    fun apply(codeStyleSettings: CodeStyleSettings) {
+        applyCodeStyle(codeStyleSettings, settings)
     }
 }
 
