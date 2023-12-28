@@ -8,7 +8,9 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleSchemes
+import org.jetbrains.annotations.VisibleForTesting
 
 object DotfileConfigPlugin {
     private val mapper = JsonMapper.builder()
@@ -20,13 +22,13 @@ object DotfileConfigPlugin {
     private val activeKeymap get() = KeymapManager.getInstance().activeKeymap
     val configFile get() = homeDir.findOrCreateChildData(this, ".ideaconfig")
 
-    fun updateConfig() {
-        configFile.refresh(false, false)
-        val text = configFile.contentsToByteArray(false).decodeToString()
+    fun updateConfig(file: VirtualFile = configFile) {
+        file.refresh(false, false)
+        val text = file.contentsToByteArray(false).decodeToString()
         if (text.isBlank()) {
             runWriteAction {
                 val newText = writeConfig().toByteArray()
-                configFile.getOutputStream(this).use { it.write(newText) }
+                file.getOutputStream(this).use { it.write(newText) }
             }
         } else {
             applyConfig(text)
@@ -45,11 +47,11 @@ object DotfileConfigPlugin {
         }
     }
 
-    private fun writeConfig(): String {
-        val config = DotfileConfig(
-            codeStyle = CodeStyleConfig(defaultCodeStyleSettings),
-            keybinds = KeybindConfig(activeKeymap),
-        )
-        return mapper.writeValueAsString(config)
-    }
+    @VisibleForTesting
+    fun generateConfig() = DotfileConfig(
+        codeStyle = CodeStyleConfig(defaultCodeStyleSettings),
+        keybinds = KeybindConfig(activeKeymap),
+    )
+
+    private fun writeConfig() = mapper.writeValueAsString(generateConfig())
 }

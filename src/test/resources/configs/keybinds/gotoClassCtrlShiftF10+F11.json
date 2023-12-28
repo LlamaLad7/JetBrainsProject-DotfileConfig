@@ -1,0 +1,7 @@
+{
+  "keybinds": {
+    "bindings": {
+      "GotoClass" : [ "[ctrl shift F10]+[F11]" ]
+    }
+  }
+}

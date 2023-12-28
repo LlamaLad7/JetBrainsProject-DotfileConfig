@@ -1,0 +1,9 @@
+{
+  "codeStyle": {
+    "settings": {
+      "JSON": {
+        "SPACE_AFTER_COLON": false
+      }
+    }
+  }
+}

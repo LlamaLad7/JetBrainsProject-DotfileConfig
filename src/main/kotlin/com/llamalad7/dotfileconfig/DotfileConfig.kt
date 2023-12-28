@@ -7,15 +7,15 @@ import com.intellij.openapi.keymap.Keymap
 import com.intellij.psi.codeStyle.CodeStyleSettings
 
 data class DotfileConfig(
-    val codeStyle: CodeStyleConfig,
-    val keybinds: KeybindConfig,
+    val codeStyle: CodeStyleConfig?,
+    val keybinds: KeybindConfig?,
 ) {
     fun apply(
         codeStyleSettings: CodeStyleSettings,
         keymap: Keymap,
     ) {
-        codeStyle.apply(codeStyleSettings)
-        keybinds.apply(keymap)
+        codeStyle?.apply(codeStyleSettings)
+        keybinds?.apply(keymap)
     }
 }
 
